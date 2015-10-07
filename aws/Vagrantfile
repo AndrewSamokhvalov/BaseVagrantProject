@@ -1,0 +1,29 @@
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "dummy"
+
+  config.vm.provider :aws do |aws, override|
+
+      aws.access_key_id = ENV['AWS_KEY']
+      aws.secret_access_key = ENV['AWS_SECRET']
+      aws.keypair_name = ENV['AWS_KEYNAME']
+      aws.ami = "ami-5189a661"
+      aws.region = "us-west-2"
+      aws.instance_type = "t2.micro"
+
+      override.vm.box = "dummy"
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = ENV['AWS_KEYPATH']
+      override.nfs.functional = false
+  end
+
+
+  # Specify file that will be loaded after boot
+  config.vm.provision "shell", 
+                      path: "./provision.sh",
+                      privileged: false
+
+
+  # Disable default rsync path
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+end
