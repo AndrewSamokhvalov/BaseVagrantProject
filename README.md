@@ -13,7 +13,7 @@
 * Generate self-signed certificate for AWS domain.
 
 
-# Example of init.sh
+## Example of init.sh
 ```
 export AWS_KEYNAME="AndreySamokhvalov"
 export AWS_KEYPATH="$HOME/.ssh/AndreySamokhvalov.pem"
