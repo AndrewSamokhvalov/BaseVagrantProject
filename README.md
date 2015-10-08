@@ -21,7 +21,7 @@ export AWS_SECRET="e0w01wf+GC67AI4Cj5Q4taXYLGTTLeabOai+Ec5yZ"
 
 export PROJECT_GIT_URL="git@gitlab.com:AndreySamokhvalov/AdvertismentTelegramBot.git"
 export PROJECT_GIT_SSH_KEY_PATH="$HOME/.ssh/id_rsa"
-export PROJECT_DIR="$HOME/../project"
+export PROJECT_DIR="$PWD/../project"
 ```
 
 ## Usage:
