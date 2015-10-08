@@ -1,3 +1,9 @@
+RED='\033[0;31m'
+NC='\033[0m'
+
+VAGRANT_AWS_DIR="$PWD/aws"
+VAGRANT_VM_DIR="$PWD/vm"
+
 function dinfo() {
 	local INFO="$1"
 	echo "INFO: $INFO"
@@ -5,7 +11,7 @@ function dinfo() {
 
 function derror() {
 	local ERROR="$1"
-	echo "ERROR: $ERROR"
+	echo "${RED}ERROR:${NC} $ERROR"
 }
 
 function get_aws_ip() {
@@ -20,7 +26,6 @@ function get_domain() {
 
 function get_vm_ip() {
 	local VM_IP=$(vagrant ssh-config | grep "HostName" | awk '{ printf $2 }')
-	# local VM_DOMAIN=$(host $VM_IP | awk '{ printf $5 }' | python -c "import sys; print(sys.stdin.read()[:-1])")
 	echo "$VM_IP"
 }
 
@@ -103,22 +108,50 @@ function check_env() {
 	dinfo "Check environment variables ->"
 
 	: ${VAGRANT_AWS_DIR?"Need to set VAGRANT_AWS_DIR"}
+	dinfo "\t * VAGRANT_AWS_DIR=$VAGRANT_AWS_DIR"
+
 	: ${VAGRANT_VM_DIR?"Need to set VAGRANT_VM_DIR"}
-	: ${VAGRANT_DIR?"Need to set VAGRANT_DIR"}
+	dinfo "\t * VAGRANT_VM_DIR=$VAGRANT_VM_DIR"
+
 	: ${AWS_KEYNAME?"Need to set AWS_KEYNAME"}
+	dinfo "\t * AWS_KEYNAME=$AWS_KEYNAME"
+
 	: ${AWS_KEYPATH?"Need to set AWS_KEYPATH"}
+	dinfo "\t * AWS_KEYPATH=$AWS_KEYPATH"
+
 	: ${AWS_KEY?"Need to set AWS_KEY"}
+	dinfo "\t * AWS_KEY=$AWS_KEY"
+
 	: ${AWS_SECRET?"Need to set AWS_SECRET"}
+	dinfo "\t * AWS_SECRET=$AWS_SECRET"
+
+	: ${PROJECT_DIR?"Need to set PROJECT_DIR"}
+	dinfo "\t * PROJECT_DIR=$PROJECT_DIR"
+
+	: ${PROJECT_GIT_SSH_KEY_PATH?"Need to set PROJECT_GIT_SSH_KEY_PATH"}
+	dinfo "\t * PROJECT_GIT_SSH_KEY_PATH=$PROJECT_GIT_SSH_KEY_PATH"
 
 	dinfo "\t * All variables is setted"
 }
 
+function check_project_dir(){
+	dinfo "Create project dir ->"
+	mkdir -p $PROJECT_DIR
+
+	if [ ! -d $PROJECT_DIR ]; then
+		exit
+	fi
+
+	dinfo "\t * PROJECT_DIR=$PROJECT_DIR"
+}
+
 function ssl_generate() {
-	dinfo "Generate SSL certificate ->"
-	SSL_DIR="../telegram/src/bot/ssl"
-	
+	dinfo "Generate self-signed SSL certificate ->"
+	dinfo "\t * AWS_DOMAIN=$AWS_DOMAIN"
+
+	SSL_DIR="$PROJECT_DIR/ssl"
 	if [ -d $SSL_DIR ]; then
-		dinfo "\t * Delete old sertificates"
+		dinfo "\t * Delete old certificates"
 		rm $SSL_DIR/*
 	else
 		dinfo "\t * Create SSL dir"
@@ -132,16 +165,28 @@ function ssl_generate() {
     -out "$SSL_DIR/server.crt"
 } 
 
+function enable_ssh_agent() {
+	dinfo "Run ssh-agent ->"
+	dinfo "\t * PROJECT_GIT_SSH_KEY_PATH=$PROJECT_GIT_SSH_KEY_PATH"
+  	ssh-add $PROJECT_GIT_SSH_KEY_PATH || { derror "Can't add ss key"  ; exit 1; }
+  	dinfo "\t * Key is added"
+}
+
 # # Check before running
 check_vagrant
 check_aws_plugin
 check_aws_box
 check_env
+check_project_dir
 
-# # ================== AWS ==================
+# Enable ssh-agent because in vagrant provision we need to download git project
+enable_ssh_agent
+
+# ================== AWS ==================
 cd $VAGRANT_AWS_DIR
 dinfo "Up AWS instance ->"
 vagrant up --provider=aws || { derror "Can't load aws instance"  ; exit 1; }
+# vagrant provision || { derror "Can't provision aws instance"  ; exit 1; }
 
 dinfo "Get AWS ip ->"
 AWS_IP=$(get_aws_ip)
@@ -151,20 +196,24 @@ dinfo "Get AWS domain ->"
 AWS_DOMAIN=$(get_domain "$AWS_IP")
 dinfo "\t * AWS_DOMAIN=$AWS_DOMAIN"
 
-# # ================== VM ==================
+# ================== VM ==================
 cd $VAGRANT_VM_DIR
+
+
 dinfo "Up VM instance ->"
 vagrant up --provider=parallels || { derror "Can't load vm instance"  ; exit 1; }
+# vagrant provision || { derror "Can't provision vm instance"  ; exit 1; }
 
 dinfo "Get VM ip ->"
 VM_IP=$(get_vm_ip)
 dinfo "\t * VM_IP=$VM_IP"
 
-cd $VAGRANT_DIR
+# Make connections between real world and your vagrant instance
 flash_iptables_rules
-
 make_reverse_tunnel "80"
 make_reverse_tunnel "443"
+
+# Generate ssl keys for ec2 domain
 ssl_generate
 
 dinfo "+ ==================================== +"
@@ -172,6 +221,9 @@ dinfo "\t * AWS_IP=$AWS_IP"
 dinfo "\t * AWS_DOMAIN=$AWS_DOMAIN"
 dinfo "\t * VM_IP=$VM_IP"
 dinfo "+ ==================================== +"
+
+
+
 
 
 

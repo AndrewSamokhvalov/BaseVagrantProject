@@ -1,5 +1,8 @@
 #!/bin/bash
 
+RED='\033[0;31m'
+NC='\033[0m'
+
 function dinfo() {
 	local INFO="$1"
 	echo "INFO: $INFO"
@@ -10,17 +13,29 @@ function derror() {
 	echo "ERROR: $ERROR"
 }
 
-function upd_upgr() {
-	# Update and Upgrade system
-	echo -e "\n" \
-			"+ = = = = = = = = = = = +\n" \
-			"+                       +\n" \
-			"+ update/upgrade system +\n" \
-			"+                       +\n" \
-			"+ = = = = = = = = = = = +\n" 
+function enable_gatewayports() {
+	dinfo "Enable GatewayPorts ->"
 
-	sudo apt-get -y update 1>/dev/null
-	sudo apt-get -y upgrade 1>/dev/null
+	SSHD_CONFIG="/etc/ssh/sshd_config"
+	OPTION="GatewayPorts yes"
+
+	IS_OPTION_ENABLED=$(cat "$SSHD_CONFIG" | grep "$OPTION" | wc -l)
+	if [ "$IS_GATEWAYPORTS_ENABLED" == "0" ]; then
+		sudo sh -c "echo '$OPTION' >>  $SSHD_CONFIG"
+		dinfo "\t * GatewayPorts is enabled"
+		sudo service ssh restart
+	else
+		dinfo "\t * GatewayPorts already enabled"
+	fi
 }
 
-# upd_upgr
+function upd_upgr() {
+	# Update and Upgrade system
+	dinfo " Update and upgrade system ->"
+
+	sudo apt-get -y update || { derror "Can't update system"  ; exit 1; }
+	sudo apt-get -y upgrade 1>/dev/null || { derror "Can't upgrade system"  ; exit 1; }
+}
+
+enable_gatewayports
+upd_upgr

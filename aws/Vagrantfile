@@ -20,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Specify file that will be loaded after boot
   config.vm.provision "shell", 
-                      path: "./provision.sh",
+                      path: "provision.sh",
                       privileged: false
 
 
