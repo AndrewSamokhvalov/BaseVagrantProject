@@ -7,11 +7,10 @@
 ## This script helps me with:
 * Run AWS instance over vagrant-aws.
 * Run local vagrant vm with ubuntu-14.04.
-* Install my project in vagrant vm and mount this directory on local computer.
+* Install my project from git repository on vm and mount this directory on local computer.
 * Install my project python dependencies.
 * Create tunnel AWS:80 -> VM:80 and AWS:443 -> VM:443.
 * Generate self-signed certificate for AWS domain.
-
 
 ## Example of init.sh
 ```
@@ -36,5 +35,6 @@ export PROJECT_DIR="$HOME/../project"
 . ./init.sh"
 ./start.sh"
 ```
+
 ## Errors:
 I know that this script is far away from ideal. If you have troubles please inform me about it.
