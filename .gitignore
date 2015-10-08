@@ -1,2 +1,3 @@
 aws/.vagrant
 vm/.vagrant
+init.sh
