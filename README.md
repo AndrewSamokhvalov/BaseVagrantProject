@@ -16,8 +16,8 @@
 ```
 export AWS_KEYNAME="AndreySamokhvalov"
 export AWS_KEYPATH="$HOME/.ssh/AndreySamokhvalov.pem"
-export AWS_KEY="AKIAJAFIU54OS2B3UUHQ"
-export AWS_SECRET="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"
+export AWS_KEY="AKIAFJKFIU54OS2B3UUHQ"
+export AWS_SECRET="e0w01wf+GC67AI4Cj5Q4taXYLGTTLeabOai+Ec5yZ"
 
 export PROJECT_GIT_URL="git@gitlab.com:AndreySamokhvalov/AdvertismentTelegramBot.git"
 export PROJECT_GIT_SSH_KEY_PATH="$HOME/.ssh/id_rsa"
