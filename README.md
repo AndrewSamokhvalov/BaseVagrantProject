@@ -1,10 +1,10 @@
-# What I want:
+## What I want:
 * I work on OS X and want that  development and production environments were close to each other as much as possible.
 * I don't have public ip address and I need way to be available from the internet (in my case this is Telegram Bot that should be available out of the local network).
 * I need a fast synchronisations of my changes.
 * I don't wanna waste enormous amount of time by setting up my environment again and again.
 
-# This script helps me with:
+## This script helps me with:
 * Run AWS instance over vagrant-aws.
 * Run local vagrant vm with ubuntu-14.04.
 * Install my project in vagrant vm and mount this directory on local computer.
@@ -25,10 +25,16 @@ export PROJECT_GIT_SSH_KEY_PATH="$HOME/.ssh/id_rsa"
 export PROJECT_DIR="$HOME/../project"
 ```
 
-# Usage:
+## Usage:
+* Create AWS account.
+* Get your AWS_KEYNAME, AWS_KEY, AWS_SECRET.
+* Download aws key and setting it in ~/.ssh/ directory
+* Open ports 80 and 443 in AWS managment console.
 * Create init.sh in root directory.
-* Run ". ./init.sh"
-* Run " ./start.sh"
-
-# Errors:
+* Run: 
+```
+. ./init.sh"
+./start.sh"
+```
+## Errors:
 I know that this script is far away from ideal. If you have troubles please inform me about it.
